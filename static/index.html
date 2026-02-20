@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Story</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f0f0f;
+      --surface: #161616;
+      --border: #2a2a2a;
+      --text: #e2ddd8;
+      --text-muted: #7a7570;
+      --text-dim: #4a4845;
+      --accent: #7aab8a;
+      --accent-dim: #1e3028;
+      --ending-bg: #131210;
+      --ending-border: #2e2a24;
+      --btn-bg: #1e1e1e;
+      --btn-hover: #2a2a2a;
+      --btn-border: #333;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 18px;
+      line-height: 1.75;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 60px 24px 80px;
+    }
+
+    header {
+      width: 100%;
+      max-width: 680px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 56px;
+    }
+
+    .site-title {
+      font-size: 13px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      font-family: system-ui, sans-serif;
+    }
+
+    .btn {
+      font-family: system-ui, sans-serif;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      background: var(--btn-bg);
+      border: 1px solid var(--btn-border);
+      border-radius: 4px;
+      padding: 6px 14px;
+      cursor: pointer;
+      transition: color 0.15s, background 0.15s, border-color 0.15s;
+    }
+
+    .btn:hover:not(:disabled) {
+      color: var(--text);
+      background: var(--btn-hover);
+      border-color: #444;
+    }
+
+    .btn:disabled {
+      opacity: 0.35;
+      cursor: default;
+    }
+
+    main {
+      width: 100%;
+      max-width: 680px;
+      flex: 1;
+      border: 1px solid #3a3a3a;
+      border-radius: 8px;
+      padding: 40px 48px;
+    }
+
+    /* ── Loading state ── */
+    .loading-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 80px;
+      gap: 16px;
+    }
+
+    .loading-label {
+      font-family: system-ui, sans-serif;
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+
+    .loading-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .loading-dots span {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--text-dim);
+      animation: bounce 1.4s ease-in-out infinite;
+    }
+
+    .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes bounce {
+      0%, 80%, 100% { transform: translateY(0); opacity: 0.3; }
+      40% { transform: translateY(-6px); opacity: 1; }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 0.8; }
+    }
+
+    /* ── Error state ── */
+    .error-wrap {
+      padding-top: 60px;
+    }
+
+    .error-box {
+      border: 1px solid #3a1a1a;
+      background: #160d0d;
+      border-radius: 6px;
+      padding: 20px 24px;
+    }
+
+    .error-label {
+      font-family: system-ui, sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #7a3a3a;
+      margin-bottom: 8px;
+    }
+
+    .error-message {
+      font-family: system-ui, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #c47a7a;
+    }
+
+    /* ── Story body ── */
+    .story-body {
+      animation: fadeIn 0.4s ease;
+    }
+
+    .story-body p {
+      margin-bottom: 1.5em;
+      color: var(--text);
+    }
+
+    /* ── Ending section ── */
+    .ending-section {
+      margin-top: 8px;
+      border-top: 1px solid var(--ending-border);
+      padding-top: 28px;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .ending-controls {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin-bottom: 20px;
+      font-family: system-ui, sans-serif;
+    }
+
+    .ending-btn {
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      cursor: pointer;
+      padding: 4px 8px;
+      font-size: 14px;
+      line-height: 1;
+      transition: color 0.15s;
+      border-radius: 3px;
+    }
+
+    .ending-btn:hover {
+      color: var(--accent);
+    }
+
+    .ending-label {
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 0 10px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      user-select: none;
+    }
+
+    .ending-tab {
+      padding: 2px 8px;
+      border-radius: 3px;
+      cursor: pointer;
+      color: var(--text-dim);
+      transition: color 0.15s, background 0.15s;
+    }
+
+    .ending-tab:hover {
+      color: var(--text-muted);
+    }
+
+    .ending-tab.active {
+      color: var(--accent);
+      background: var(--accent-dim);
+    }
+
+    .ending-hint {
+      font-size: 10px;
+      color: var(--text-dim);
+      letter-spacing: 0.06em;
+      margin-left: auto;
+    }
+
+    .ending-text {
+      color: var(--text);
+      padding: 20px 22px;
+      background: var(--ending-bg);
+      border: 1px solid var(--ending-border);
+      border-radius: 4px;
+      transition: opacity 0.2s ease;
+    }
+
+    .ending-text.switching {
+      opacity: 0;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <span class="site-title">Story</span>
+  <button class="btn" id="new-story-btn" disabled>New story</button>
+</header>
+
+<main id="main"></main>
+
+<script>
+  const mainEl = document.getElementById('main');
+  const newStoryBtn = document.getElementById('new-story-btn');
+
+  const state = {
+    status: 'idle',   // 'idle' | 'loading' | 'ready' | 'error'
+    body: [],
+    endings: [],
+    activeEnding: 0,
+    errorMessage: '',
+  };
+
+  function setState(patch) {
+    Object.assign(state, patch);
+    render();
+  }
+
+  // ── Render ──────────────────────────────────────────────────────────────────
+
+  function render() {
+    newStoryBtn.disabled = state.status === 'loading';
+
+    if (state.status === 'idle' || state.status === 'loading') {
+      renderLoading();
+      return;
+    }
+
+    if (state.status === 'error') {
+      renderError();
+      return;
+    }
+
+    renderStory();
+  }
+
+  function renderLoading() {
+    mainEl.innerHTML = '';
+    const wrap = document.createElement('div');
+    wrap.className = 'loading-wrap';
+
+    const label = document.createElement('div');
+    label.className = 'loading-label';
+    label.textContent = 'Generating';
+
+    const dots = document.createElement('div');
+    dots.className = 'loading-dots';
+    for (let i = 0; i < 3; i++) {
+      const dot = document.createElement('span');
+      dots.appendChild(dot);
+    }
+
+    wrap.appendChild(label);
+    wrap.appendChild(dots);
+    mainEl.appendChild(wrap);
+  }
+
+  function renderError() {
+    mainEl.innerHTML = '';
+    const wrap = document.createElement('div');
+    wrap.className = 'error-wrap';
+
+    const box = document.createElement('div');
+    box.className = 'error-box';
+
+    const label = document.createElement('div');
+    label.className = 'error-label';
+    label.textContent = 'Generation failed';
+
+    const msg = document.createElement('div');
+    msg.className = 'error-message';
+    msg.textContent = state.errorMessage || 'Something went wrong. Check that LM Studio is running.';
+
+    box.appendChild(label);
+    box.appendChild(msg);
+    wrap.appendChild(box);
+    mainEl.appendChild(wrap);
+  }
+
+  function renderStory() {
+    mainEl.innerHTML = '';
+
+    // Body paragraphs
+    const bodyEl = document.createElement('div');
+    bodyEl.className = 'story-body';
+    for (const para of state.body) {
+      const p = document.createElement('p');
+      p.textContent = para;
+      bodyEl.appendChild(p);
+    }
+    mainEl.appendChild(bodyEl);
+
+    // Ending section
+    const section = document.createElement('div');
+    section.className = 'ending-section';
+
+    // Controls row
+    const controls = document.createElement('div');
+    controls.className = 'ending-controls';
+
+    const prevBtn = document.createElement('button');
+    prevBtn.className = 'ending-btn';
+    prevBtn.setAttribute('aria-label', 'Previous ending');
+    prevBtn.textContent = '←';
+    prevBtn.addEventListener('click', () => switchEnding(0));
+
+    const labelGroup = document.createElement('div');
+    labelGroup.className = 'ending-label';
+
+    const tabA = document.createElement('span');
+    tabA.className = 'ending-tab' + (state.activeEnding === 0 ? ' active' : '');
+    tabA.textContent = 'A';
+    tabA.addEventListener('click', () => switchEnding(0));
+
+    const tabB = document.createElement('span');
+    tabB.className = 'ending-tab' + (state.activeEnding === 1 ? ' active' : '');
+    tabB.textContent = 'B';
+    tabB.addEventListener('click', () => switchEnding(1));
+
+    labelGroup.appendChild(tabA);
+    labelGroup.appendChild(tabB);
+
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'ending-btn';
+    nextBtn.setAttribute('aria-label', 'Next ending');
+    nextBtn.textContent = '→';
+    nextBtn.addEventListener('click', () => switchEnding(1));
+
+    const hint = document.createElement('span');
+    hint.className = 'ending-hint';
+    hint.textContent = '← → to switch';
+
+    controls.appendChild(prevBtn);
+    controls.appendChild(labelGroup);
+    controls.appendChild(nextBtn);
+    controls.appendChild(hint);
+    section.appendChild(controls);
+
+    // Ending text
+    const endingEl = document.createElement('p');
+    endingEl.className = 'ending-text';
+    endingEl.id = 'ending-text';
+    endingEl.textContent = state.endings[state.activeEnding] || '';
+    section.appendChild(endingEl);
+
+    mainEl.appendChild(section);
+  }
+
+  // ── Interactions ─────────────────────────────────────────────────────────────
+
+  function switchEnding(index) {
+    if (state.status !== 'ready' || state.activeEnding === index) return;
+
+    const endingEl = document.getElementById('ending-text');
+    if (endingEl) {
+      endingEl.classList.add('switching');
+      setTimeout(() => {
+        setState({ activeEnding: index });
+      }, 150);
+    } else {
+      setState({ activeEnding: index });
+    }
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (state.status !== 'ready') return;
+    if (e.key === 'ArrowLeft')  switchEnding(0);
+    if (e.key === 'ArrowRight') switchEnding(1);
+  });
+
+  newStoryBtn.addEventListener('click', () => {
+    if (state.status !== 'loading') fetchStory();
+  });
+
+  // ── API call ─────────────────────────────────────────────────────────────────
+
+  async function fetchStory() {
+    setState({ status: 'loading', body: [], endings: [], activeEnding: 0, errorMessage: '' });
+
+    try {
+      const res = await fetch('/api/story', { method: 'POST' });
+      if (!res.ok) {
+        let detail = `Server error (HTTP ${res.status})`;
+        try {
+          const data = await res.json();
+          if (data.detail) detail = data.detail;
+        } catch (_) {}
+        setState({ status: 'error', errorMessage: detail });
+        return;
+      }
+
+      const data = await res.json();
+      setState({
+        status: 'ready',
+        body: data.body,
+        endings: data.endings,
+        activeEnding: 0,
+      });
+    } catch (err) {
+      setState({
+        status: 'error',
+        errorMessage: 'Could not reach the server. Is it running?',
+      });
+    }
+  }
+
+  // Auto-generate on load
+  fetchStory();
+</script>
+</body>
+</html>

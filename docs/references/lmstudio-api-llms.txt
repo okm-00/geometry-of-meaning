@@ -1,0 +1,76 @@
+LM STUDIO LOCAL API REFERENCE
+==============================
+
+LM Studio exposes an OpenAI-compatible REST API when the local server is enabled.
+
+Default base URL: http://localhost:1234/v1
+The API key field is ignored — pass any non-empty string (e.g. "lm-studio").
+
+USING THE OPENAI PYTHON SDK
+-----------------------------
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="http://localhost:1234/v1",
+    api_key="lm-studio",  # ignored by LM Studio
+)
+
+response = client.chat.completions.create(
+    model="<model-identifier>",  # as shown in LM Studio's model list
+    messages=[
+        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "user", "content": "Hello!"},
+    ],
+    temperature=0.7,
+)
+
+content = response.choices[0].message.content
+
+GETTING THE MODEL IDENTIFIER
+------------------------------
+The model identifier is shown in the LM Studio UI under "My Models" or in the
+local server tab. It typically looks like:
+  - "lmstudio-community/Meta-Llama-3.1-8B-Instruct-GGUF"
+  - "mistral-7b-instruct-v0.3"
+Set this as LM_STUDIO_MODEL in your .env file.
+
+JSON MODE / STRUCTURED OUTPUT
+-------------------------------
+LM Studio supports JSON output mode (model-dependent).
+To request JSON output, either:
+
+Option A — System prompt instruction (most reliable across models):
+  system: "Respond only with valid JSON. No markdown, no explanation."
+
+Option B — response_format parameter (if model supports it):
+  response = client.chat.completions.create(
+      model=model,
+      messages=[...],
+      response_format={"type": "json_object"},
+  )
+
+This app uses Option A for maximum compatibility.
+
+STREAMING
+----------
+LM Studio supports streaming via the standard OpenAI streaming interface:
+  response = client.chat.completions.create(..., stream=True)
+  for chunk in response:
+      print(chunk.choices[0].delta.content or "", end="")
+
+Not used in v1. See tech-debt-tracker for future streaming work.
+
+AVAILABLE ENDPOINTS (OpenAI-compatible subset)
+------------------------------------------------
+POST /v1/chat/completions    — chat completions (used by this app)
+GET  /v1/models              — list loaded models
+POST /v1/completions         — legacy text completions (not used)
+POST /v1/embeddings          — embeddings (not used)
+
+COMMON ERRORS
+--------------
+- 503 / connection refused: LM Studio is not running or local server is not enabled.
+- 400 / model not found: The model identifier in LM_STUDIO_MODEL doesn't match
+  the loaded model. Check the LM Studio UI.
+- Malformed JSON in response: The model didn't follow JSON instructions.
+  Retry or adjust the prompt.

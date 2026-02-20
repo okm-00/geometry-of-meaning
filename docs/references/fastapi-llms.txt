@@ -1,0 +1,81 @@
+FASTAPI PATTERNS REFERENCE
+===========================
+
+This app uses FastAPI. Key patterns used in this codebase.
+
+MINIMAL APP STRUCTURE
+----------------------
+from fastapi import FastAPI, HTTPException
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+
+app = FastAPI()
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+@app.get("/")
+async def root():
+    return FileResponse("static/index.html")
+
+@app.post("/api/story")
+async def generate_story():
+    ...
+
+SERVING A SINGLE HTML FILE AT /
+---------------------------------
+from fastapi.responses import FileResponse
+
+@app.get("/")
+async def root():
+    return FileResponse("static/index.html")
+
+Note: StaticFiles mount must NOT be at "/" if you want a custom root handler.
+Mount static files at "/static" and handle "/" separately.
+
+RETURNING JSON
+---------------
+Return a plain dict — FastAPI serializes it automatically:
+
+@app.post("/api/story")
+async def generate_story() -> dict:
+    return {"body": [...], "endings": [...]}
+
+Or use a Pydantic model for typed responses:
+
+from pydantic import BaseModel
+
+class StoryResponse(BaseModel):
+    body: list[str]
+    endings: list[str]
+
+@app.post("/api/story", response_model=StoryResponse)
+async def generate_story() -> StoryResponse:
+    ...
+
+HTTP ERRORS
+------------
+from fastapi import HTTPException
+
+raise HTTPException(status_code=500, detail="LLM call failed: connection refused")
+raise HTTPException(status_code=503, detail="LM Studio is not reachable")
+
+STARTUP / LIFESPAN
+-------------------
+from contextlib import asynccontextmanager
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # startup code here
+    yield
+    # shutdown code here
+
+app = FastAPI(lifespan=lifespan)
+
+RUNNING
+--------
+uv run uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+
+CORS (not needed for v1 — same origin)
+----------------------------------------
+If ever needed:
+from fastapi.middleware.cors import CORSMiddleware
+app.add_middleware(CORSMiddleware, allow_origins=["*"], ...)

@@ -1,0 +1,61 @@
+UV PACKAGE MANAGER REFERENCE
+==============================
+
+uv is a fast Python package manager. This project uses uv with pyproject.toml.
+
+SETUP (first time)
+-------------------
+uv init          # creates pyproject.toml if not present (we write it manually)
+uv sync          # installs all deps from pyproject.toml into .venv/
+
+RUNNING THE APP
+----------------
+uv run uvicorn app.main:app --reload
+
+uv run <command> runs the command in the project's virtual environment.
+No need to activate the venv manually.
+
+ADDING DEPENDENCIES
+--------------------
+uv add fastapi
+uv add "uvicorn[standard]"
+uv add openai
+uv add python-dotenv
+
+This updates pyproject.toml and uv.lock automatically.
+
+REMOVING DEPENDENCIES
+----------------------
+uv remove <package>
+
+PYPROJECT.TOML STRUCTURE
+--------------------------
+[project]
+name = "story-app"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.110.0",
+    "uvicorn[standard]>=0.27.0",
+    "openai>=1.0.0",
+    "python-dotenv>=1.0.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+LOCK FILE
+----------
+uv.lock is auto-generated. Commit it to ensure reproducible installs.
+Do not edit it manually.
+
+VIRTUAL ENVIRONMENT
+--------------------
+uv creates .venv/ in the project root automatically.
+It is gitignored. To recreate: uv sync
+
+PYTHON VERSION
+---------------
+uv will download and use the Python version specified in requires-python
+if it is not already installed.

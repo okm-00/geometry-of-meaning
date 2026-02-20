@@ -1,7 +1,8 @@
 # Core Beliefs
 
 Agent-first operating principles for this repository.
-These are not suggestions — they are constraints that keep the codebase legible for future agent runs.
+These are not suggestions — they are design requirements that shape how the system is built.
+The goal is autonomous agent operation: humans steer intent, agents execute and self-validate.
 
 ## 1. The repository is the system of record
 
@@ -45,11 +46,34 @@ Before implementing a non-trivial change, write an execution plan in `docs/exec-
 After completing it, move it to `docs/exec-plans/completed/` and update relevant docs.
 Technical debt is logged in `docs/exec-plans/tech-debt-tracker.md` immediately when identified.
 
-## 8. Error messages are agent context
+## 8. All runtime state is directly agent-accessible
 
-When writing custom error messages (exceptions, HTTP responses, log lines),
-write them as if they will be read by an agent that has no other context.
-Include: what failed, where it failed, and what the expected state was.
+Every runtime signal must be machine-readable and reachable in-context — no human relay.
+
+- **Errors**: typed exception classes carry structured context (what failed, where, expected state).
+  HTTP error responses are always `{ "detail": "..." }` JSON, never raw tracebacks.
+- **Logs**: persistent, structured, tailable via `make logs`. `make triage` surfaces recent errors
+  and open TD items in a single command.
+- **Health**: `GET /health` returns structured JSON. `make health` wraps it for agent invocation.
+- **Validation**: `make verify` runs the full test + health loop and exits non-zero on failure.
+
+If an agent needs a human to copy-paste a terminal output into a prompt, that is a design failure.
+When adding a new failure mode, ask: can an agent read this signal directly and act on it?
+
+## 9. The feedback loop closes without human relay
+
+`make verify` is the canonical feedback loop. After any change, an agent must be able to run it,
+interpret the output, and either confirm correctness or diagnose and fix the failure — without
+escalating to a human for context.
+
+This is not a convenience. It is a design requirement. Every new feature must satisfy it:
+
+- The test suite must cover its correctness (`make test`).
+- The health endpoint must remain green after the change (`make health`).
+- Any new failure mode must produce output that is actionable without human interpretation.
+
+If `make verify` passes, the change is correct. If it fails, the agent has everything it needs.
+If an agent cannot self-validate, the system is incomplete — fix the system, not the agent.
 
 ## 10. Encode constraints in tooling, not in documentation
 
@@ -65,7 +89,7 @@ Examples of this principle applied:
 When you find yourself writing "always remember to..." in a doc, stop and ask whether
 a Makefile target, a CI step, or a startup check can enforce it instead.
 
-## 9. Tests define correct behavior — write them before the code
+## 11. Tests define correct behavior — write them before the code
 
 A test suite is not documentation added after the fact. The `## Tests` section of an
 execution plan defines acceptance criteria before a line of implementation is written.

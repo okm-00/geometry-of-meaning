@@ -21,6 +21,8 @@
       --btn-bg: #1e1e1e;
       --btn-hover: #2a2a2a;
       --btn-border: #333;
+      --star-on: #c8a84b;
+      --star-off: #3a3530;
     }
 
     html, body {
@@ -42,11 +44,11 @@
 
     header {
       width: 100%;
-      max-width: 680px;
+      max-width: 1320px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 56px;
+      margin-bottom: 32px;
     }
 
     .site-title {
@@ -82,13 +84,201 @@
       cursor: default;
     }
 
-    main {
+    /* ── Setup screen ── */
+    .setup-wrap {
       width: 100%;
-      max-width: 680px;
-      flex: 1;
+      max-width: 520px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      padding-top: 60px;
+    }
+
+    .setup-heading {
+      font-family: system-ui, sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .setup-options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .setup-option-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .setup-option-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .setup-option-row input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--accent);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .setup-option-label {
+      font-family: system-ui, sans-serif;
+      font-size: 14px;
+      color: var(--text-muted);
+      text-transform: capitalize;
+      cursor: pointer;
+    }
+
+    .setup-option-row input:checked ~ .setup-option-label {
+      color: var(--text);
+    }
+
+    .setup-features {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: 26px;
+      animation: fadeIn 0.15s ease;
+    }
+
+    .setup-feature-label {
+      font-family: system-ui, sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .setup-feature-select {
+      font-family: system-ui, sans-serif;
+      font-size: 12px;
+      background: var(--btn-bg);
+      border: 1px solid var(--btn-border);
+      border-radius: 4px;
+      padding: 3px 8px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .setup-feature-select:focus {
+      outline: none;
+      border-color: #555;
+      color: var(--text);
+    }
+
+    .setup-hint {
+      font-family: system-ui, sans-serif;
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    /* ── Compare layout ── */
+    .compare-wrap {
+      width: 100%;
+      max-width: 1320px;
+      display: grid;
+      gap: 20px;
+    }
+
+    .compare-wrap.cols-1 { grid-template-columns: 1fr; max-width: 680px; }
+    .compare-wrap.cols-2 { grid-template-columns: 1fr 1fr; }
+
+    .compare-col {
       border: 1px solid #3a3a3a;
       border-radius: 8px;
-      padding: 40px 48px;
+      padding: 32px 36px;
+    }
+
+    .col-label {
+      font-family: system-ui, sans-serif;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 28px;
+    }
+
+    /* ── Feedback panel ── */
+    .feedback-panel {
+      width: 100%;
+      max-width: 1320px;
+      margin-top: 20px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px 28px;
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      font-family: system-ui, sans-serif;
+      flex-wrap: wrap;
+    }
+
+    .feedback-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .feedback-group-label {
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .stars {
+      display: flex;
+      gap: 4px;
+    }
+
+    .star {
+      font-size: 20px;
+      color: var(--star-off);
+      cursor: pointer;
+      transition: color 0.1s;
+      user-select: none;
+      line-height: 1;
+    }
+
+    .star.filled { color: var(--star-on); }
+    .star:hover  { color: var(--star-on); }
+
+    .tag-input {
+      font-family: system-ui, sans-serif;
+      font-size: 13px;
+      background: var(--btn-bg);
+      border: 1px solid var(--btn-border);
+      border-radius: 4px;
+      padding: 6px 10px;
+      color: var(--text);
+      width: 200px;
+      transition: border-color 0.15s;
+    }
+
+    .tag-input::placeholder { color: var(--text-dim); }
+    .tag-input:focus { outline: none; border-color: #555; }
+
+    .feedback-actions {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .feedback-saved {
+      font-size: 12px;
+      color: var(--accent);
+      letter-spacing: 0.06em;
     }
 
     /* ── Loading state ── */
@@ -136,9 +326,7 @@
     }
 
     /* ── Error state ── */
-    .error-wrap {
-      padding-top: 60px;
-    }
+    .error-wrap { padding-top: 60px; }
 
     .error-box {
       border: 1px solid #3a1a1a;
@@ -164,14 +352,8 @@
     }
 
     /* ── Story body ── */
-    .story-body {
-      animation: fadeIn 0.4s ease;
-    }
-
-    .story-body p {
-      margin-bottom: 1.5em;
-      color: var(--text);
-    }
+    .story-body { animation: fadeIn 0.4s ease; }
+    .story-body p { margin-bottom: 1.5em; color: var(--text); }
 
     /* ── Ending section ── */
     .ending-section {
@@ -201,9 +383,7 @@
       border-radius: 3px;
     }
 
-    .ending-btn:hover {
-      color: var(--accent);
-    }
+    .ending-btn:hover { color: var(--accent); }
 
     .ending-label {
       font-size: 11px;
@@ -225,9 +405,7 @@
       transition: color 0.15s, background 0.15s;
     }
 
-    .ending-tab:hover {
-      color: var(--text-muted);
-    }
+    .ending-tab:hover { color: var(--text-muted); }
 
     .ending-tab.active {
       color: var(--accent);
@@ -250,9 +428,7 @@
       transition: opacity 0.2s ease;
     }
 
-    .ending-text.switching {
-      opacity: 0;
-    }
+    .ending-text.switching { opacity: 0; }
 
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(8px); }
@@ -264,21 +440,33 @@
 
 <header>
   <span class="site-title">Story</span>
-  <button class="btn" id="new-story-btn" disabled>New story</button>
+  <button class="btn" id="new-session-btn" disabled>New session</button>
 </header>
 
-<main id="main"></main>
+
+<div id="app-root"></div>
 
 <script>
-  const mainEl = document.getElementById('main');
-  const newStoryBtn = document.getElementById('new-story-btn');
+  const appRoot      = document.getElementById('app-root');
+  const newSessionBtn = document.getElementById('new-session-btn');
+
+  // ── State ──────────────────────────────────────────────────────────────────
 
   const state = {
-    status: 'idle',   // 'idle' | 'loading' | 'ready' | 'error'
-    body: [],
-    endings: [],
-    activeEnding: 0,
+    status: 'setup',              // 'setup' | 'loading' | 'ready' | 'error'
+    availableVariants: [],        // list of variant names, from GET /api/variants
+    variantMeta: {},              // { [name]: { ending_strategy } }
+    availableEndingStrategies: [], // list of valid ending_strategy strings
+    selectedVariants: [],         // user's checkbox selection (names only)
+    selectedFeatures: {},         // { [name]: { ending_strategy } } — per-variant overrides
     errorMessage: '',
+    sessionId: null,
+    generations: [],              // [{ generation_id, condition, body, endings, activeEnding }]
+    feedback: {
+      ratings: {},                // { [generation_id]: 1-5 }, 0/absent = unset
+      tag: '',
+      saved: false,
+    },
   };
 
   function setState(patch) {
@@ -286,196 +474,504 @@
     render();
   }
 
-  // ── Render ──────────────────────────────────────────────────────────────────
+  // ── Render ─────────────────────────────────────────────────────────────────
 
   function render() {
-    newStoryBtn.disabled = state.status === 'loading';
+    newSessionBtn.disabled = state.status === 'loading' || state.status === 'setup';
+    appRoot.innerHTML = '';
 
-    if (state.status === 'idle' || state.status === 'loading') {
-      renderLoading();
+    if (state.status === 'setup') {
+      appRoot.appendChild(buildSetupScreen());
+      return;
+    }
+
+    if (state.status === 'loading') {
+      const n = state.selectedVariants.length || 2;
+      const wrap = document.createElement('div');
+      wrap.className = `compare-wrap cols-${Math.min(n, 2)}`;
+      for (const name of (state.selectedVariants.length ? state.selectedVariants : ['', ''])) {
+        wrap.appendChild(buildColShell(name, buildLoading()));
+      }
+      appRoot.appendChild(wrap);
       return;
     }
 
     if (state.status === 'error') {
-      renderError();
+      const n = state.selectedVariants.length || 1;
+      const wrap = document.createElement('div');
+      wrap.className = `compare-wrap cols-${n}`;
+      wrap.appendChild(buildColShell('', buildError(state.errorMessage)));
+      appRoot.appendChild(wrap);
       return;
     }
 
-    renderStory();
+    // ready
+    const n = state.generations.length;
+    const wrap = document.createElement('div');
+    wrap.className = `compare-wrap cols-${Math.min(n, 2)}`;
+    for (const gen of state.generations) {
+      wrap.appendChild(buildColShell(gen.condition, buildStory(gen, gen.generation_id)));
+    }
+    appRoot.appendChild(wrap);
+    appRoot.appendChild(buildFeedbackPanel());
   }
 
-  function renderLoading() {
-    mainEl.innerHTML = '';
+  // ── Setup screen ───────────────────────────────────────────────────────────
+
+  function buildSetupScreen() {
     const wrap = document.createElement('div');
-    wrap.className = 'loading-wrap';
+    wrap.className = 'setup-wrap';
 
-    const label = document.createElement('div');
-    label.className = 'loading-label';
-    label.textContent = 'Generating';
+    const heading = document.createElement('div');
+    heading.className = 'setup-heading';
+    heading.textContent = 'Select variants to generate';
+    wrap.appendChild(heading);
 
-    const dots = document.createElement('div');
-    dots.className = 'loading-dots';
-    for (let i = 0; i < 3; i++) {
-      const dot = document.createElement('span');
-      dots.appendChild(dot);
+    if (!state.availableVariants.length) {
+      wrap.appendChild(buildLoading());
+      return wrap;
     }
 
-    wrap.appendChild(label);
-    wrap.appendChild(dots);
-    mainEl.appendChild(wrap);
+    const options = document.createElement('div');
+    options.className = 'setup-options';
+
+    for (const name of state.availableVariants) {
+      const isChecked = state.selectedVariants.includes(name);
+
+      const optionWrap = document.createElement('div');
+      optionWrap.className = 'setup-option-wrap';
+
+      // Checkbox row
+      const row = document.createElement('div');
+      row.className = 'setup-option-row';
+
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.id = 'cb-' + name;
+      cb.value = name;
+      cb.checked = isChecked;
+      cb.addEventListener('change', () => {
+        const checked = Array.from(
+          document.querySelectorAll('.setup-option-row input:checked')
+        ).map(el => el.value);
+        // Enforce max 2
+        const clamped = checked.slice(-2);
+        state.selectedVariants = clamped;
+        // Init features for newly checked variants from their defaults
+        for (const n of clamped) {
+          if (!state.selectedFeatures[n]) {
+            state.selectedFeatures[n] = {
+              ending_strategy: state.variantMeta[n]?.ending_strategy ?? 'none',
+            };
+          }
+        }
+        // Remove features for unchecked variants
+        for (const n of Object.keys(state.selectedFeatures)) {
+          if (!clamped.includes(n)) delete state.selectedFeatures[n];
+        }
+        render();
+      });
+
+      const lbl = document.createElement('label');
+      lbl.className = 'setup-option-label';
+      lbl.htmlFor = 'cb-' + name;
+      lbl.textContent = name;
+
+      row.appendChild(cb);
+      row.appendChild(lbl);
+      optionWrap.appendChild(row);
+
+      // Feature row — only when checked
+      if (isChecked) {
+        const featRow = document.createElement('div');
+        featRow.className = 'setup-features';
+
+        const featLabel = document.createElement('span');
+        featLabel.className = 'setup-feature-label';
+        featLabel.textContent = 'endings';
+
+        const sel = document.createElement('select');
+        sel.className = 'setup-feature-select';
+        const currentStrategy = state.selectedFeatures[name]?.ending_strategy
+          ?? state.variantMeta[name]?.ending_strategy
+          ?? 'none';
+        for (const strategy of state.availableEndingStrategies) {
+          const opt = document.createElement('option');
+          opt.value = strategy;
+          opt.textContent = strategy;
+          opt.selected = (strategy === currentStrategy);
+          sel.appendChild(opt);
+        }
+        sel.addEventListener('change', () => {
+          if (!state.selectedFeatures[name]) state.selectedFeatures[name] = {};
+          state.selectedFeatures[name].ending_strategy = sel.value;
+        });
+
+        featRow.appendChild(featLabel);
+        featRow.appendChild(sel);
+        optionWrap.appendChild(featRow);
+      }
+
+      options.appendChild(optionWrap);
+    }
+
+    wrap.appendChild(options);
+
+    const hint = document.createElement('div');
+    hint.className = 'setup-hint';
+    hint.textContent = 'Select 1 or 2 variants (max 2)';
+    wrap.appendChild(hint);
+
+    const generateBtn = document.createElement('button');
+    generateBtn.className = 'btn';
+    generateBtn.id = 'generate-btn';
+    generateBtn.textContent = 'Generate';
+    generateBtn.disabled = !state.selectedVariants.length;
+    generateBtn.addEventListener('click', () => {
+      if (state.selectedVariants.length) fetchSession();
+    });
+    wrap.appendChild(generateBtn);
+
+    return wrap;
   }
 
-  function renderError() {
-    mainEl.innerHTML = '';
-    const wrap = document.createElement('div');
-    wrap.className = 'error-wrap';
+  // ── Column shell ───────────────────────────────────────────────────────────
 
-    const box = document.createElement('div');
-    box.className = 'error-box';
-
-    const label = document.createElement('div');
-    label.className = 'error-label';
-    label.textContent = 'Generation failed';
-
-    const msg = document.createElement('div');
-    msg.className = 'error-message';
-    msg.textContent = state.errorMessage || 'Something went wrong. Check that LM Studio is running.';
-
-    box.appendChild(label);
-    box.appendChild(msg);
-    wrap.appendChild(box);
-    mainEl.appendChild(wrap);
+  function buildColShell(label, content) {
+    const col = document.createElement('div');
+    col.className = 'compare-col';
+    const lbl = document.createElement('div');
+    lbl.className = 'col-label';
+    lbl.textContent = label;
+    col.appendChild(lbl);
+    col.appendChild(content);
+    return col;
   }
 
-  function renderStory() {
-    mainEl.innerHTML = '';
+  // ── Story builder ──────────────────────────────────────────────────────────
 
-    // Body paragraphs
+  function buildStory(gen, genId) {
+    const frag = document.createDocumentFragment();
+
     const bodyEl = document.createElement('div');
     bodyEl.className = 'story-body';
-    for (const para of state.body) {
+    for (const para of gen.body) {
       const p = document.createElement('p');
       p.textContent = para;
       bodyEl.appendChild(p);
     }
-    mainEl.appendChild(bodyEl);
+    frag.appendChild(bodyEl);
 
-    // Ending section
-    const section = document.createElement('div');
-    section.className = 'ending-section';
+    // Only render the ending section if this variant produced endings.
+    if (gen.endings && gen.endings.length > 0) {
+      const section = document.createElement('div');
+      section.className = 'ending-section';
 
-    // Controls row
-    const controls = document.createElement('div');
-    controls.className = 'ending-controls';
+      const controls = document.createElement('div');
+      controls.className = 'ending-controls';
 
-    const prevBtn = document.createElement('button');
-    prevBtn.className = 'ending-btn';
-    prevBtn.setAttribute('aria-label', 'Previous ending');
-    prevBtn.textContent = '←';
-    prevBtn.addEventListener('click', () => switchEnding(0));
+      const prevBtn = document.createElement('button');
+      prevBtn.className = 'ending-btn';
+      prevBtn.setAttribute('aria-label', 'Previous ending');
+      prevBtn.textContent = '←';
+      prevBtn.addEventListener('click', () => switchEnding(genId, 0));
 
-    const labelGroup = document.createElement('div');
-    labelGroup.className = 'ending-label';
+      const labelGroup = document.createElement('div');
+      labelGroup.className = 'ending-label';
 
-    const tabA = document.createElement('span');
-    tabA.className = 'ending-tab' + (state.activeEnding === 0 ? ' active' : '');
-    tabA.textContent = 'A';
-    tabA.addEventListener('click', () => switchEnding(0));
+      const tabA = document.createElement('span');
+      tabA.className = 'ending-tab' + (gen.activeEnding === 0 ? ' active' : '');
+      tabA.textContent = 'A';
+      tabA.addEventListener('click', () => switchEnding(genId, 0));
 
-    const tabB = document.createElement('span');
-    tabB.className = 'ending-tab' + (state.activeEnding === 1 ? ' active' : '');
-    tabB.textContent = 'B';
-    tabB.addEventListener('click', () => switchEnding(1));
+      const tabB = document.createElement('span');
+      tabB.className = 'ending-tab' + (gen.activeEnding === 1 ? ' active' : '');
+      tabB.textContent = 'B';
+      tabB.addEventListener('click', () => switchEnding(genId, 1));
 
-    labelGroup.appendChild(tabA);
-    labelGroup.appendChild(tabB);
+      labelGroup.appendChild(tabA);
+      labelGroup.appendChild(tabB);
 
-    const nextBtn = document.createElement('button');
-    nextBtn.className = 'ending-btn';
-    nextBtn.setAttribute('aria-label', 'Next ending');
-    nextBtn.textContent = '→';
-    nextBtn.addEventListener('click', () => switchEnding(1));
+      const nextBtn = document.createElement('button');
+      nextBtn.className = 'ending-btn';
+      nextBtn.setAttribute('aria-label', 'Next ending');
+      nextBtn.textContent = '→';
+      nextBtn.addEventListener('click', () => switchEnding(genId, 1));
 
-    const hint = document.createElement('span');
-    hint.className = 'ending-hint';
-    hint.textContent = '← → to switch';
+      const hint = document.createElement('span');
+      hint.className = 'ending-hint';
+      hint.textContent = '← → to switch';
 
-    controls.appendChild(prevBtn);
-    controls.appendChild(labelGroup);
-    controls.appendChild(nextBtn);
-    controls.appendChild(hint);
-    section.appendChild(controls);
+      controls.appendChild(prevBtn);
+      controls.appendChild(labelGroup);
+      controls.appendChild(nextBtn);
+      controls.appendChild(hint);
+      section.appendChild(controls);
 
-    // Ending text
-    const endingEl = document.createElement('p');
-    endingEl.className = 'ending-text';
-    endingEl.id = 'ending-text';
-    endingEl.textContent = state.endings[state.activeEnding] || '';
-    section.appendChild(endingEl);
+      const endingEl = document.createElement('p');
+      endingEl.className = 'ending-text';
+      endingEl.id = 'ending-text-' + genId;
+      endingEl.textContent = gen.endings[gen.activeEnding] || '';
+      section.appendChild(endingEl);
 
-    mainEl.appendChild(section);
+      frag.appendChild(section);
+    }
+
+    return frag;
   }
 
-  // ── Interactions ─────────────────────────────────────────────────────────────
+  // ── Feedback panel ─────────────────────────────────────────────────────────
 
-  function switchEnding(index) {
-    if (state.status !== 'ready' || state.activeEnding === index) return;
+  function buildFeedbackPanel() {
+    const panel = document.createElement('div');
+    panel.className = 'feedback-panel';
 
-    const endingEl = document.getElementById('ending-text');
-    if (endingEl) {
-      endingEl.classList.add('switching');
+    for (const gen of state.generations) {
+      panel.appendChild(buildStarGroup(gen.condition, gen.generation_id));
+    }
+
+    // Tag
+    const tagGroup = document.createElement('div');
+    tagGroup.className = 'feedback-group';
+    const tagLabel = document.createElement('div');
+    tagLabel.className = 'feedback-group-label';
+    tagLabel.textContent = 'Tag';
+    const tagInput = document.createElement('input');
+    tagInput.type = 'text';
+    tagInput.className = 'tag-input';
+    tagInput.placeholder = 'add a note…';
+    tagInput.maxLength = 120;
+    tagInput.value = state.feedback.tag;
+    tagInput.addEventListener('input', e => { state.feedback.tag = e.target.value; });
+    tagGroup.appendChild(tagLabel);
+    tagGroup.appendChild(tagInput);
+    panel.appendChild(tagGroup);
+
+    // Save / saved
+    const actions = document.createElement('div');
+    actions.className = 'feedback-actions';
+
+    if (state.feedback.saved) {
+      const saved = document.createElement('span');
+      saved.className = 'feedback-saved';
+      saved.textContent = 'Saved.';
+      actions.appendChild(saved);
+    } else {
+      const saveBtn = document.createElement('button');
+      saveBtn.className = 'btn';
+      saveBtn.textContent = 'Save';
+      saveBtn.addEventListener('click', submitFeedback);
+      actions.appendChild(saveBtn);
+    }
+
+    panel.appendChild(actions);
+    return panel;
+  }
+
+  function buildStarGroup(label, genId) {
+    const group = document.createElement('div');
+    group.className = 'feedback-group';
+
+    const lbl = document.createElement('div');
+    lbl.className = 'feedback-group-label';
+    lbl.textContent = label;
+    group.appendChild(lbl);
+
+    const stars = document.createElement('div');
+    stars.className = 'stars';
+
+    const rating = state.feedback.ratings[genId] || 0;
+
+    for (let i = 1; i <= 5; i++) {
+      const star = document.createElement('span');
+      star.className = 'star' + (i <= rating ? ' filled' : '');
+      star.textContent = '★';
+      star.dataset.value = i;
+      star.addEventListener('click', () => {
+        state.feedback.ratings[genId] = i;
+        state.feedback.saved = false;
+        render();
+      });
+      // Hover preview
+      star.addEventListener('mouseenter', () => {
+        stars.querySelectorAll('.star').forEach((s, idx) => {
+          s.classList.toggle('filled', idx < i);
+        });
+      });
+      star.addEventListener('mouseleave', () => {
+        const cur = state.feedback.ratings[genId] || 0;
+        stars.querySelectorAll('.star').forEach((s, idx) => {
+          s.classList.toggle('filled', idx < cur);
+        });
+      });
+      stars.appendChild(star);
+    }
+
+    group.appendChild(stars);
+    return group;
+  }
+
+  // ── Loading / error helpers ────────────────────────────────────────────────
+
+  function buildLoading() {
+    const wrap = document.createElement('div');
+    wrap.className = 'loading-wrap';
+    const label = document.createElement('div');
+    label.className = 'loading-label';
+    label.textContent = 'Generating';
+    const dots = document.createElement('div');
+    dots.className = 'loading-dots';
+    for (let i = 0; i < 3; i++) dots.appendChild(document.createElement('span'));
+    wrap.appendChild(label);
+    wrap.appendChild(dots);
+    return wrap;
+  }
+
+  function buildError(message) {
+    const wrap = document.createElement('div');
+    wrap.className = 'error-wrap';
+    const box = document.createElement('div');
+    box.className = 'error-box';
+    const label = document.createElement('div');
+    label.className = 'error-label';
+    label.textContent = 'Generation failed';
+    const msg = document.createElement('div');
+    msg.className = 'error-message';
+    msg.textContent = message || 'Something went wrong. Check that LM Studio is running.';
+    box.appendChild(label);
+    box.appendChild(msg);
+    wrap.appendChild(box);
+    return wrap;
+  }
+
+  // ── Ending interactions ────────────────────────────────────────────────────
+
+  function switchEnding(genId, index) {
+    const gen = state.generations.find(g => g.generation_id === genId);
+    if (!gen || gen.activeEnding === index) return;
+    const el = document.getElementById('ending-text-' + genId);
+    if (el) {
+      el.classList.add('switching');
       setTimeout(() => {
-        setState({ activeEnding: index });
+        gen.activeEnding = index;
+        render();
       }, 150);
     } else {
-      setState({ activeEnding: index });
+      gen.activeEnding = index;
+      render();
     }
   }
 
-  document.addEventListener('keydown', (e) => {
+  document.addEventListener('keydown', e => {
     if (state.status !== 'ready') return;
-    if (e.key === 'ArrowLeft')  switchEnding(0);
-    if (e.key === 'ArrowRight') switchEnding(1);
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    const idx = e.key === 'ArrowLeft' ? 0 : 1;
+    for (const gen of state.generations) {
+      if (gen.endings && gen.endings.length > 0) switchEnding(gen.generation_id, idx);
+    }
   });
 
-  newStoryBtn.addEventListener('click', () => {
-    if (state.status !== 'loading') fetchStory();
+  // ── API calls ──────────────────────────────────────────────────────────────
+
+  // "New session" returns to the setup screen
+  newSessionBtn.addEventListener('click', () => {
+    if (state.status !== 'loading') {
+      setState({
+        status: 'setup',
+        sessionId: null,
+        generations: [],
+        feedback: { ratings: {}, tag: '', saved: false },
+      });
+    }
   });
 
-  // ── API call ─────────────────────────────────────────────────────────────────
+  async function fetchVariants() {
+    try {
+      const res = await fetch('/api/variants');
+      if (res.ok) {
+        const data = await res.json();
+        state.variantMeta = data.variants || {};
+        state.availableVariants = Object.keys(data.variants || {});
+        state.availableEndingStrategies = data.ending_strategies || [];
+      }
+    } catch (_) {
+      state.variantMeta = {};
+      state.availableVariants = [];
+      state.availableEndingStrategies = [];
+    }
+    render();
+  }
 
-  async function fetchStory() {
-    setState({ status: 'loading', body: [], endings: [], activeEnding: 0, errorMessage: '' });
+  async function fetchSession() {
+    const selections = state.selectedVariants.map(name => ({
+      name,
+      ending_strategy: state.selectedFeatures[name]?.ending_strategy
+        ?? state.variantMeta[name]?.ending_strategy
+        ?? 'none',
+    }));
+
+    setState({
+      status: 'loading',
+      errorMessage: '',
+      sessionId: null,
+      generations: [],
+      feedback: { ratings: {}, tag: '', saved: false },
+    });
 
     try {
-      const res = await fetch('/api/story', { method: 'POST' });
+      const res = await fetch('/api/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ selections }),
+      });
       if (!res.ok) {
         let detail = `Server error (HTTP ${res.status})`;
-        try {
-          const data = await res.json();
-          if (data.detail) detail = data.detail;
-        } catch (_) {}
+        try { const d = await res.json(); if (d.detail) detail = d.detail; } catch (_) {}
         setState({ status: 'error', errorMessage: detail });
         return;
       }
-
       const data = await res.json();
       setState({
         status: 'ready',
-        body: data.body,
-        endings: data.endings,
-        activeEnding: 0,
+        sessionId: data.session_id,
+        generations: data.generations.map(g => ({
+          generation_id: g.generation_id,
+          condition: g.condition,
+          body: g.body,
+          endings: g.endings,
+          activeEnding: 0,
+        })),
       });
-    } catch (err) {
-      setState({
-        status: 'error',
-        errorMessage: 'Could not reach the server. Is it running?',
-      });
+      newSessionBtn.disabled = false;
+    } catch (_) {
+      setState({ status: 'error', errorMessage: 'Could not reach the server. Is it running?' });
     }
   }
 
-  // Auto-generate on load
-  fetchStory();
+  async function submitFeedback() {
+    if (!state.generations.length) return;
+    const tag = state.feedback.tag || null;
+    try {
+      await Promise.all(state.generations.map(gen =>
+        fetch('/api/feedback', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            generation_id: gen.generation_id,
+            rating: state.feedback.ratings[gen.generation_id] || null,
+            tag,
+          }),
+        })
+      ));
+    } catch (_) {
+      // best-effort
+    }
+    state.feedback.saved = true;
+    render();
+  }
+
+  // On load: fetch variants to populate the setup screen
+  fetchVariants();
 </script>
 </body>
 </html>

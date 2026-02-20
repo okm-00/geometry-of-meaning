@@ -1,13 +1,25 @@
-import json
 import logging
 import re
+import time
 from dataclasses import dataclass
 
 from openai import OpenAI, APIConnectionError, APIStatusError
 
 from app import config
+from app.features import EndingStrategy
+from app.variants import VariantConfig
 
 logger = logging.getLogger(__name__)
+
+TEMPERATURE = 0.85
+
+# Prompts used for harness-generated endings.
+# Both variants share the same ending style; promote to VariantConfig if they diverge.
+_ENDING_SYSTEM = """\
+You are W.G. Sebald. Write a single closing paragraph in your distinctive prose style: \
+melancholy, digressive, precise. The paragraph should feel like a natural conclusion — \
+or an opening onto something unresolved.\
+"""
 
 
 class LLMConnectionError(RuntimeError):
@@ -18,47 +30,24 @@ class LLMResponseError(RuntimeError):
     """Raised when LM Studio returns an HTTP error status."""
 
 
-class LLMParseError(RuntimeError):
-    """Raised when the LLM response cannot be parsed into a valid StoryResult."""
-
-
-_SYSTEM_PROMPT = """\
-You are a creative fiction writer. Your task is to generate a short interactive story.
-
-Respond with ONLY a valid JSON object — no markdown fences, no explanation, no extra text.
-
-The JSON must have exactly this structure:
-{
-  "body": ["paragraph 1", "paragraph 2", "paragraph 3"],
-  "endings": ["ending A", "ending B"]
-}
-
-Rules:
-- "body" must contain 3 or 4 paragraphs that set up the story. Do not resolve the story here.
-- "endings" must contain exactly 2 paragraphs. Each is a distinct final paragraph that resolves
-  the story in a different direction. Ending A and ending B must feel meaningfully different —
-  not just paraphrases of each other. One can be hopeful, the other bittersweet, for example.
-- Each paragraph is a single string of 3–6 sentences.
-- Write in third person, past tense.
-- All stories must be science fiction and must feature robots as central characters.
-- Do not include titles, chapter headings, or any text outside the JSON object.\
-"""
-
-_USER_PROMPT = "Generate a short interactive story now. /no_think"
-
-
 @dataclass
 class StoryResult:
     body: list[str]
-    endings: list[str]
+    endings: list[str]   # empty list when ending_strategy is NONE
+    condition: str
+    system_prompt: str
+    user_prompt: str
+    timing_ms: int
 
 
-def generate_story() -> StoryResult:
+def generate_story(variant: VariantConfig) -> StoryResult:
     """
-    Call LM Studio to generate a story with two alternative endings.
+    Generate a story for the given variant.
 
-    Returns a StoryResult with 3-4 body paragraphs and exactly 2 endings.
-    Raises LLMConnectionError, LLMResponseError, or LLMParseError on failure.
+    Makes one LLM call for the body. If variant.ending_strategy is HARNESS,
+    makes two additional calls to produce alternate endings A and B.
+
+    Raises LLMConnectionError or LLMResponseError on failure.
     """
     client = OpenAI(
         base_url=config.LM_STUDIO_BASE_URL,
@@ -66,14 +55,40 @@ def generate_story() -> StoryResult:
         timeout=config.LM_STUDIO_TIMEOUT_SECONDS,
     )
 
+    start = time.monotonic()
+
+    body_text = _call_llm(client, variant.system_prompt, variant.user_prompt).strip()
+
+    endings: list[str] = []
+    if variant.ending_strategy == EndingStrategy.HARNESS:
+        ending_user = (
+            f"The story so far:\n\n{body_text}\n\n"
+            "Write a single closing paragraph. /no_think"
+        )
+        ending_a = _call_llm(client, _ENDING_SYSTEM, ending_user).strip()
+        ending_b = _call_llm(client, _ENDING_SYSTEM, ending_user).strip()
+        endings = [ending_a, ending_b]
+
+    return StoryResult(
+        body=[body_text],
+        endings=endings,
+        condition=variant.name,
+        system_prompt=variant.system_prompt,
+        user_prompt=variant.user_prompt,
+        timing_ms=int((time.monotonic() - start) * 1000),
+    )
+
+
+def _call_llm(client: OpenAI, system_prompt: str, user_prompt: str) -> str:
+    """Make a single chat completion call; return raw content string."""
     try:
         response = client.chat.completions.create(
             model=config.LM_STUDIO_MODEL,
             messages=[
-                {"role": "system", "content": _SYSTEM_PROMPT},
-                {"role": "user", "content": _USER_PROMPT},
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt},
             ],
-            temperature=0.85,
+            temperature=TEMPERATURE,
         )
     except APIConnectionError as e:
         raise LLMConnectionError(
@@ -87,63 +102,8 @@ def generate_story() -> StoryResult:
             f"Check that model '{config.LM_STUDIO_MODEL}' is loaded in LM Studio. "
             f"Underlying error: {e.message}"
         ) from e
-
     raw = response.choices[0].message.content or ""
-    return _parse_response(raw)
-
-
-def _parse_response(raw: str) -> StoryResult:
-    """
-    Parse and validate the LLM JSON response into a StoryResult.
-
-    Raises LLMParseError with diagnostic context if the response is malformed.
-    """
-    raw = raw.strip()
-    logger.debug("Raw LLM response: %r", raw[:1000])
-
-    # Strip <think>...</think> reasoning blocks (e.g. Qwen3 without /no_think)
+    # Strip <think>...</think> reasoning blocks produced by Qwen3 thinking mode.
     if "<think>" in raw:
         raw = re.sub(r"<think>.*?</think>", "", raw, flags=re.DOTALL).strip()
-
-    # Strip markdown code fences if the model wrapped the JSON anyway
-    if raw.startswith("```"):
-        lines = raw.splitlines()
-        raw = "\n".join(
-            line for line in lines if not line.startswith("```")
-        ).strip()
-
-    try:
-        data = json.loads(raw)
-    except json.JSONDecodeError as e:
-        raise LLMParseError(
-            f"LLM response was not valid JSON. "
-            f"Parse error: {e}. "
-            f"Raw response (first 500 chars): {raw[:500]!r}"
-        ) from e
-
-    body = data.get("body")
-    endings = data.get("endings")
-
-    if not isinstance(body, list) or len(body) < 2:
-        raise LLMParseError(
-            f"LLM response JSON missing or invalid 'body' field. "
-            f"Expected a list of 3-4 strings, got: {body!r}"
-        )
-
-    if not isinstance(endings, list) or len(endings) != 2:
-        raise LLMParseError(
-            f"LLM response JSON missing or invalid 'endings' field. "
-            f"Expected a list of exactly 2 strings, got: {endings!r}"
-        )
-
-    if not all(isinstance(p, str) for p in body):
-        raise LLMParseError(
-            f"'body' paragraphs must all be strings, got: {body!r}"
-        )
-
-    if not all(isinstance(e, str) for e in endings):
-        raise LLMParseError(
-            f"'endings' must all be strings, got: {endings!r}"
-        )
-
-    return StoryResult(body=body, endings=endings)
+    return raw
